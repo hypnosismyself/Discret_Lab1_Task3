@@ -4,14 +4,28 @@
 #include <fstream>
 #include <sstream>
 
-// ввод матрицы смежности с клавиатуры
-std::vector<std::vector<int>> inputAdjacencyMatrixFromKeyboard(int summit_num)
+bool check_matrix(const std::vector<std::vector<int>> Matrix)
 {
+    if (Matrix.empty())
+    {
+        std::cout << "Не введен граф\n";
+        return false;
+    }
+    else
+        return true;
+}
+
+// ввод матрицы смежности с клавиатуры
+std::vector<std::vector<int>> inputAdjacencyMatrixFromKeyboard()
+{
+    int summit_num;
+
     std::cout << "Введите количество вершин графа: ";
     std::cin >> summit_num;
 
     std::vector<std::vector<int>> Matrix(summit_num, std::vector<int>(summit_num));
     std::cout << "Введите матрицу смежности (строка за строкой):\n";
+
     for (int i = 0; i < summit_num; i++)
     {
         for (int j = 0; j < summit_num; j++)
@@ -22,9 +36,12 @@ std::vector<std::vector<int>> inputAdjacencyMatrixFromKeyboard(int summit_num)
 }
 
 // ввод матрицы смежности из файла
-std::vector<std::vector<int>> inputAdjacencyMatrixFromFile(int summit_num, const std::string filename)
+std::vector<std::vector<int>> inputAdjacencyMatrixFromFile(const std::string filename)
 {
+    int summit_num;
+
     std::ifstream file("..\\" + filename + ".txt");
+
     if (!file.is_open()) 
     {
         std::cout << "Ошибка при открытии файла!\n";
@@ -32,6 +49,7 @@ std::vector<std::vector<int>> inputAdjacencyMatrixFromFile(int summit_num, const
     }
 
     file >> summit_num;
+
     std::vector<std::vector<int>> Matrix(summit_num, std::vector<int>(summit_num));
     for (int i = 0; i < summit_num; ++i)
     {
@@ -78,21 +96,22 @@ void printIncidenceMatrix(const std::vector<std::vector<int>> Matrix)
     }
 
     std::cout << "\nМатрица инцидентности:\n";
+
     for (int i = 0; i < summit_num; i++)
     {
         for (int j = 0; j < edges; j++) 
-        {
             std::cout << incMatrix[j][i] << " ";
-        }
+
         std::cout << std::endl;
     }
 }
 
 // вывод списка смежности
-void printAdjacencyList(const std::vector<std::vector<int>> Matrix)
+void printAdjacencyList(const std::vector<std::vector<int>> &Matrix)
 {
     size_t summit_num = Matrix.size();
     std::cout << "Список смежности:\n";
+
     for (int i = 0; i < summit_num; i++)
     {
         std::cout << i + 1 << ": ";
@@ -100,9 +119,7 @@ void printAdjacencyList(const std::vector<std::vector<int>> Matrix)
         {
             // проверка, связаны ли вершины графа
             if (Matrix[i][j] == 1)
-            {
                 std::cout << j + 1 << " ";
-            }
         }
         std::cout << std::endl;
     }
@@ -124,9 +141,11 @@ void printIncidenceList2(const std::vector<std::vector<int>> Matrix)
     }
 
     std::cout << "Список инцидентности:" << std::endl;
-    for (const auto& kv : incidentEdges) {
-        std::cout << "Ребро: " << kv.first + 1 << std::endl;
-        for (int vertex : kv.second) 
+
+    for (auto edge : incidentEdges) 
+    {
+        std::cout << "Ребро: " << edge.first + 1 << std::endl;
+        for (int vertex : edge.second)
             std::cout << "\tИнцидентная вершина: " << vertex + 1 << std::endl;
     }
 }
@@ -135,7 +154,6 @@ void printIncidenceList2(const std::vector<std::vector<int>> Matrix)
 void menu() 
 {
     std::vector<std::vector<int>> Matrix;
-    int summit_num = 0;
     int action;
 
     do 
@@ -154,51 +172,49 @@ void menu()
         // управление меню через свич-кейс
         switch (action)
         {
+            // ввод с клавитуры
             case 1: 
             {
-                // ввод с клавитуры
-                Matrix = inputAdjacencyMatrixFromKeyboard(summit_num);
+                Matrix = inputAdjacencyMatrixFromKeyboard();
                 break;
             }
+            // ввод с файла
             case 2: 
             {
-                // ввод с файла
                 std::string filename;
                 std::cout << "Введите имя целевого файла: ";
                 std::cin >> filename;
-                Matrix = inputAdjacencyMatrixFromFile(summit_num, filename);
+                Matrix = inputAdjacencyMatrixFromFile(filename);
+
                 break;
             }
+            // матрица инциденций
             case 3: 
             {
-                // матрица инциденций
-                if (Matrix.empty())
-                    std::cout << "Не введен граф\n";
-                else
+                if (check_matrix(Matrix))
                     printIncidenceMatrix(Matrix);
+
                 break;
             }
             case 4: 
             {
-                if (Matrix.empty())
-                    std::cout << "Не введен граф\n";
-                else
+                if (check_matrix(Matrix))
                     printAdjacencyList(Matrix);
+
                 break;
             }
             case 5: 
             {
-                if (Matrix.empty())
-                    std::cout << "Не введен граф\n";
-                else
+                if (check_matrix(Matrix))
                     printIncidenceList2(Matrix);
+
                 break;
             }
             case 0:
                 std::cout << "Выход\n";
                 break;
             default:
-                std::cout << "Несуществующий ключ\n";
+                std::cout << "Незнакомая команда\n";
         }
     } 
     while (action != 0);
@@ -208,5 +224,4 @@ int main()
 {
     setlocale(LC_ALL, "Russian");
     menu();
-    return 0;
 }
