@@ -11,8 +11,8 @@ bool check_matrix(const std::vector<std::vector<int>> Matrix)
         std::cout << "Не введен граф\n";
         return false;
     }
-    else
-        return true;
+
+    return true;
 }
 
 // ввод матрицы смежности с клавиатуры
